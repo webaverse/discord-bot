@@ -1,1 +1,1 @@
-# discord-bot
+# Webaverse Discord Bot
