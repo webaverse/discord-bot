@@ -61,15 +61,15 @@ export default {
    * Contract addresses and abis for the webaverse contracts
    */
   erc20: {
-    address: '0xde03D1F132A7bF38d858Fd78a283572821179546',
+    address: '0x62B131602BE6C372c1F62617687e55a0EBD76E13',
     abi: erc20ABI.abi,
   },
   erc721: {
-    address: '0x0cE21A5Fa1E3c50AF683c20Ad49C36c6c01316Ea',
+    address: '0xCf5909f2eac709151fFA95459fB14C5E0Ecf0849',
     abi: erc721ABI.abi,
   },
   webaverse: {
-    address: '0xB97f9250e8164b1C5A19b233D744F02b6277cB70',
+    address: '0x2253D5914D5Bccbe50652DB4Ed0A1A2B857a60c4',
     abi: webaverseABI.abi,
   },
 };
