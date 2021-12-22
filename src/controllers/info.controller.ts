@@ -41,7 +41,7 @@ async function showSILKBalance(message: Message): Promise<void> {
   balance = await FTService.getBalance(address);
   if (words[1].startsWith('<@!') && words[1].endsWith('>')) {
     let returnMessage = `${words[1]} has ${balance} SILK.`;
-    if (`${balance}` === '0') {
+    if (`${balance}` === '0.0') {
       returnMessage += 'Want to get some SILK? Ask the Webaverse team.';
     }
     await message.reply(returnMessage);

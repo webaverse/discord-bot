@@ -8,6 +8,7 @@ async function setName(message: Message, user: IUser): Promise<void> {
   if (words.length !== 2) {
     message.channel.send('Please provide a name');
     message.channel.send('USAGE: .name [newname]');
+    return;
   }
   const name = words[1];
   await userService.setName(user.id, name);
@@ -20,6 +21,7 @@ async function setAvatar(message: Message, user: IUser): Promise<void> {
   if (words.length !== 2) {
     message.channel.send('Please provide a id');
     message.channel.send('USAGE: .avatar [id]');
+    return;
   }
   const tokenID = words[1];
   if (!tokenID || isNaN(Number(tokenID))) {
@@ -36,6 +38,7 @@ async function setHomeSpace(message: Message, user: IUser): Promise<void> {
   if (words.length !== 2) {
     message.channel.send('Please provide a id');
     message.channel.send('USAGE: .homespace [id]');
+    return;
   }
   const tokenID = words[1];
   if (!tokenID || isNaN(Number(tokenID))) {

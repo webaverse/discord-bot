@@ -1,15 +1,12 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message } from 'discord.js';
 import axios from 'axios';
 import * as ipfsClient from 'ipfs-http-client';
 import config from '@/config';
 import FTService from '@/services/FT.service';
 import { utils } from 'ethers';
-import userService from '@/services/user.service';
 import nftService from '@/services/nft.service';
-import { INFT } from '@/interfaces/NFT.interface';
 import { IUser } from '@/interfaces/user.interface';
 import { extname } from 'path';
-import * as mime from 'mime-types';
 import url from 'url';
 
 async function mint(message: Message, user: IUser): Promise<void> {

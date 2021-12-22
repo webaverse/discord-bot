@@ -76,6 +76,30 @@ async function showHelp(message: Message): Promise<void> {
         ),
     );
     await message.channel.send({ embeds });
+  } else {
+    const words = message.content.trim().split(' ');
+    if (words.length !== 2) {
+      await message.channel.send('Please provide a topic or write `.help` for a list of available commands.');
+      return;
+    }
+    const topic = words[1];
+    const helpField = helpFields.find(({ shortname }) => shortname === topic.toLowerCase());
+    if (!helpField) {
+      await message.channel.send('Please provide a topic or write `.help` for a list of available commands.');
+      return;
+    }
+    const embeds = [];
+    embeds.push(
+      new MessageEmbed()
+        .setColor('#000000')
+        .setTitle(`Webaverse Help: ${topic}`)
+        .setURL(`https://docs.webaverse.com/${topic}`)
+        .addField(
+          helpField.name,
+          '```css\n' + helpField.commands.map(c => `.${c[0]} ${c[1].join(' ')} - ${c[2]}`).join('\n') + '```',
+        ),
+    );
+    await message.channel.send({ embeds });
   }
 }
 
