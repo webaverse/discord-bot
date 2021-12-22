@@ -1,16 +1,16 @@
-import axios from 'axios';
 import { INFT } from '@/interfaces/NFT.interface';
 import { ethers } from 'ethers';
 import config from '@/config';
+import fetch from 'node-fetch';
 
 async function getNFTs(address: string): Promise<INFT[]> {
-  const res = await axios.get<INFT[]>(`${config.syncServerURL}/erc721?owner=${address}&network=sidechain`);
-  return res.data;
+  const res = await fetch(`${config.syncServerURL}/erc721?owner=${address}&network=sidechain`).then(res => res.json());
+  return res as INFT[];
 }
 
 async function getNFT(id: string): Promise<INFT> {
-  const res = await axios.get<INFT>(`${config.syncServerURL}/erc721/${id}?network=sidechain`);
-  return res.data;
+  const res = await fetch(`${config.syncServerURL}/erc721/${id}?network=sidechain`).then(res => res.json());
+  return res as INFT;
 }
 
 async function getNFTOwner(id: string): Promise<string> {

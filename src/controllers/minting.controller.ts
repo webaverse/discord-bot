@@ -1,6 +1,5 @@
 import { Message } from 'discord.js';
-import axios from 'axios';
-import * as ipfsClient from 'ipfs-http-client';
+import fetch from 'node-fetch';
 import config from '@/config';
 import FTService from '@/services/FT.service';
 import { utils } from 'ethers';
@@ -8,6 +7,7 @@ import nftService from '@/services/nft.service';
 import { IUser } from '@/interfaces/user.interface';
 import { extname } from 'path';
 import url from 'url';
+import FormData from 'form-data';
 
 async function mint(message: Message, user: IUser): Promise<void> {
   const words = message.content.trim().split(' ');
@@ -42,6 +42,7 @@ async function mint(message: Message, user: IUser): Promise<void> {
     ext = extname(url.parse(fileLink).pathname);
   } else {
     message.reply('Invalid command. Please use `.mint [name] or .mint [name] [url]`');
+    return;
   }
 
   const mintFee = await nftService.getMintFee();
@@ -55,21 +56,42 @@ async function mint(message: Message, user: IUser): Promise<void> {
     return;
   }
 
-  const ipfs = ipfsClient.create({ host: config.ipfs.host, port: config.ipfs.port, protocol: config.ipfs.protocol });
   // fetch the file from the URL and add it to IPFS
-  const response = await axios.get(fileURL, { responseType: 'arraybuffer' });
-  const buffer = Buffer.from(response.data, 'binary');
-  const ipfsFileHash = await ipfs.add(buffer);
+  const response = await fetch(fileURL).then(res => res.arrayBuffer());
+  const imageBuffer = Buffer.from(response);
+  const fd = new FormData();
+
+  fd.append('binary_data', imageBuffer.toString('utf8'), {
+    filename: name,
+  });
+
+  const ipfsFileHash: { name: string; hash: string } = await fetch(config.ipfsURL, {
+    method: 'POST',
+    body: fd,
+  }).then(res => res.json() as unknown as { name: string; hash: string });
 
   const metadata = {
     name,
-    image: `https://preview.webaverse.com/${ipfsFileHash.cid}${ext}/preview.png`,
-    hash: ipfsFileHash.cid.toString(),
+    image: `https://preview.webaverse.com/${ipfsFileHash.hash}${ext}/preview.png`,
+    hash: ipfsFileHash.hash,
     ext: ext.replace('.', ''),
   };
-  const { path } = await ipfs.add(JSON.stringify(metadata));
+
+  const metadataBuffer = Buffer.from(JSON.stringify(metadata));
+
+  const metadataForm = new FormData();
+
+  metadataForm.append('binary_data', metadataBuffer.toString('utf8'), {
+    filename: 'metadata.json',
+  });
+
+  const ipfsMetadataHash: { name: string; hash: string } = await fetch(config.ipfsURL, {
+    method: 'POST',
+    body: metadataForm,
+  }).then(res => res.json() as unknown as { name: string; hash: string });
+
   await FTService.approve(user.wallet.mnemonic, config.webaverse.address, mintFeeBN);
-  const txHash = await nftService.mint(user.wallet.mnemonic, path);
+  const txHash = await nftService.mint(user.wallet.mnemonic, ipfsMetadataHash.hash);
   await message.channel.send('NFT minted successfully');
   await message.channel.send(`Transaction: ${txHash}`);
 }

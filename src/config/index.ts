@@ -42,11 +42,7 @@ export default {
    *
    * IPFS connection details
    */
-  ipfs: {
-    host: process.env.IPFS_HOST,
-    port: Number.parseInt(process.env.IPFS_PORT),
-    protocol: process.env.IPFS_PROTOCOL,
-  },
+  ipfsURL: process.env.IPFS_URL,
 
   /*
    *
