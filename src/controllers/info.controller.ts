@@ -6,9 +6,6 @@ import userService from '@/services/user.service';
 import nftService from '@/services/nft.service';
 import { INFT } from '@/interfaces/NFT.interface';
 import crypto from 'crypto';
-import dynamoose from 'dynamoose';
-
-const ddb = dynamoose.aws.ddb();
 
 async function showStatus(message: Message, user: IUser): Promise<void> {
   if (message.content.toLowerCase() !== '.status') return;
@@ -113,32 +110,13 @@ async function showWalletPrivateKey(message: Message, user: IUser): Promise<void
 async function createLoginLink(message: Message, user: IUser): Promise<void> {
   if (user.name) {
     const code = new Uint32Array(crypto.randomBytes(4).buffer, 0, 1).toString().slice(-6);
-    await ddb
-      .putItem({
-        TableName: 'users',
-        Item: {
-          email: { S: user.id + '.code' },
-          code: { S: code },
-        },
-      })
-      .promise();
-
     await message.author.send(`Login: https://webaverse.com/login?id=${user.id}&code=${code}`);
   } else {
     const discordName = message.author.username;
     await userService.setName(user.id, discordName);
 
     const code = new Uint32Array(crypto.randomBytes(4).buffer, 0, 1).toString().slice(-6);
-    await ddb
-      .putItem({
-        TableName: 'users',
-        Item: {
-          email: { S: user.id + '.code' },
-          code: { S: code },
-        },
-      })
-      .promise();
-
+    await userService.addCode(user.id, code);
     await message.author.send(`Login: https://app.webaverse.com/login?id=${user.id}&code=${code}`);
   }
 }

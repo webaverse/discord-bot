@@ -6,7 +6,8 @@ async function routeMessage(message: Message): Promise<void> {
   const command = message.content.split(' ')[0];
   for (const route of routes.messageRoutes) {
     if (route.command === command) {
-      let user = await userService.getUser(message.author.id);
+      console.log(command);
+      let user = await userService.getUser(message.author.id, true);
       if (!user) {
         user = await userService.createUser(message.author.id, message.author.username);
       }
@@ -21,7 +22,7 @@ async function routeDM(message: Message): Promise<void> {
   const command = message.content.split(' ')[0];
   for (const route of routes.dmRoutes) {
     if (route.command === command) {
-      let user = await userService.getUser(message.author.id);
+      let user = await userService.getUser(message.author.id, true);
       if (!user) {
         user = await userService.createUser(message.author.id, message.author.username);
       }
