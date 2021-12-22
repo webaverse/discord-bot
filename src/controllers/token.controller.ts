@@ -45,7 +45,14 @@ async function getTokenMetadataAndDM(message: Message): Promise<void> {
     .setThumbnail(nft.image)
     .setURL(nft.external_url)
     .addFields(nft.attributes.map(attribute => ({ name: attribute.trait_type, value: attribute.trait_type })));
-  message.author.send({ embeds: [embed] });
+  try {
+    await message.author.send({ embeds: [embed] });
+  } catch (error) {
+    if (error.message === 'Cannot send messages to this user') {
+      message.reply('Could not DM you. Please enable DMs from this server.');
+      return;
+    }
+  }
 }
 
 async function sendSILK(message: Message, user: IUser): Promise<string> {

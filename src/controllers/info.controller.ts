@@ -104,20 +104,41 @@ async function showWalletAddress(message: Message): Promise<void> {
 
 async function showWalletPrivateKey(message: Message, user: IUser): Promise<void> {
   if (message.content.trim() !== '.key') return;
-  await message.author.send('Address: `' + user.wallet.address + '`\nMnemonic: ||' + user.wallet.mnemonic + '||');
+  try {
+    await message.author.send('Address: `' + user.wallet.address + '`\nMnemonic: ||' + user.wallet.mnemonic + '||');
+  } catch (error) {
+    if (error.message === 'Cannot send messages to this user') {
+      message.reply('Could not DM you. Please enable DMs from this server.');
+      return;
+    }
+  }
 }
 
 async function createLoginLink(message: Message, user: IUser): Promise<void> {
   if (user.name) {
     const code = new Uint32Array(crypto.randomBytes(4).buffer, 0, 1).toString().slice(-6);
-    await message.author.send(`Login: https://webaverse.com/login?id=${user.id}&code=${code}`);
+    try {
+      await message.author.send(`Login: https://webaverse.com/login?id=${user.id}&code=${code}`);
+    } catch (error) {
+      if (error.message === 'Cannot send messages to this user') {
+        message.reply('Could not DM you. Please enable DMs from this server.');
+        return;
+      }
+    }
   } else {
     const discordName = message.author.username;
     await userService.setName(user.id, discordName);
 
     const code = new Uint32Array(crypto.randomBytes(4).buffer, 0, 1).toString().slice(-6);
     await userService.addCode(user.id, code);
-    await message.author.send(`Login: https://app.webaverse.com/login?id=${user.id}&code=${code}`);
+    try {
+      await message.author.send(`Login: https://app.webaverse.com/login?id=${user.id}&code=${code}`);
+    } catch (error) {
+      if (error.message === 'Cannot send messages to this user') {
+        message.reply('Could not DM you. Please enable DMs from this server.');
+        return;
+      }
+    }
   }
 }
 
