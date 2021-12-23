@@ -59,7 +59,7 @@ const helpFields: IHelpCommand[] = [
 ];
 
 async function showHelp(message: Message): Promise<void> {
-  if (message.content === '.help') {
+  if (message.content === config.botPrefix + 'help') {
     await message.channel.send('Here are the available commands:');
     const embeds = [];
     embeds.push(
