@@ -4,7 +4,7 @@
   "description": "Discord bot for Webaverse",
   "main": "src/app.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npx tsc-alias",
     "start": "nodemon",
     "inspect": "nodemon --inspect src/app.ts",
     "test": "jest",
