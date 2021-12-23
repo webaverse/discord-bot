@@ -1,3 +1,4 @@
+import config from '@/config';
 import { IHelpCommand } from '@/interfaces/help.interface';
 import { MessageEmbed, Message } from 'discord.js';
 
@@ -70,7 +71,8 @@ async function showHelp(message: Message): Promise<void> {
           helpFields.map(({ name, commands: cmd }) => {
             return {
               name,
-              value: '```css\n' + cmd.map(c => `.${c[0]} ${c[1].join(' ')} - ${c[2]}`).join('\n') + '```',
+              value:
+                '```css\n' + cmd.map(c => `${config.botPrefix}${c[0]} ${c[1].join(' ')} - ${c[2]}`).join('\n') + '```',
             };
           }),
         ),
@@ -79,13 +81,17 @@ async function showHelp(message: Message): Promise<void> {
   } else {
     const words = message.content.trim().split(' ');
     if (words.length !== 2) {
-      await message.channel.send('Please provide a topic or write `.help` for a list of available commands.');
+      await message.channel.send(
+        `Please provide a topic or write \`${config.botPrefix}help\` for a list of available commands.`,
+      );
       return;
     }
     const topic = words[1];
     const helpField = helpFields.find(({ shortname }) => shortname === topic.toLowerCase());
     if (!helpField) {
-      await message.channel.send('Please provide a topic or write `.help` for a list of available commands.');
+      await message.channel.send(
+        `Please provide a topic or write \`${config.botPrefix}help\` for a list of available commands.`,
+      );
       return;
     }
     const embeds = [];
@@ -96,7 +102,9 @@ async function showHelp(message: Message): Promise<void> {
         .setURL(`https://docs.webaverse.com/${topic}`)
         .addField(
           helpField.name,
-          '```css\n' + helpField.commands.map(c => `.${c[0]} ${c[1].join(' ')} - ${c[2]}`).join('\n') + '```',
+          '```css\n' +
+            helpField.commands.map(c => `${config.botPrefix}${c[0]} ${c[1].join(' ')} - ${c[2]}`).join('\n') +
+            '```',
         ),
     );
     await message.channel.send({ embeds });

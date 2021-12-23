@@ -2,9 +2,10 @@ import { Message } from 'discord.js';
 import { IUser } from '@/interfaces/user.interface';
 import userService from '@/services/user.service';
 import { ethers } from 'ethers';
+import config from '@/config';
 
 async function updateMnemonic(message: Message, user: IUser): Promise<void> {
-  if (message.content.toLowerCase() !== '.key reset') {
+  if (message.content.toLowerCase() !== config.botPrefix + 'key reset') {
     const mnemonic = await userService.generateNewMnemonic(user.id);
     try {
       await message.author.send(`Your new mnemonic is: ${mnemonic}`);
@@ -16,7 +17,7 @@ async function updateMnemonic(message: Message, user: IUser): Promise<void> {
     }
     return;
   }
-  const mnemonic = message.content.replace('.key ', '');
+  const mnemonic = message.content.replace(config.botPrefix + 'key ', '');
   if (mnemonic.split(' ').length !== 12 || !ethers.utils.isValidMnemonic(mnemonic)) {
     await message.reply('Invalid mnemonic');
     return;

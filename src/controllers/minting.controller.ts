@@ -41,7 +41,9 @@ async function mint(message: Message, user: IUser): Promise<void> {
     name = words[1];
     ext = extname(url.parse(fileLink).pathname);
   } else {
-    message.reply('Invalid command. Please use `.mint [name] or .mint [name] [url]`');
+    message.reply(
+      `Invalid command. Please use \`${config.botPrefix}mint [name] or ${config.botPrefix}mint [name] [url]\``,
+    );
     return;
   }
 

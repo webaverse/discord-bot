@@ -1,6 +1,7 @@
 import { Client, Message } from 'discord.js';
 import routes from '@/routes';
 import userService from '@/services/user.service';
+import config from '@/config';
 
 async function routeMessage(message: Message): Promise<void> {
   const command = message.content.split(' ')[0];
@@ -55,8 +56,9 @@ export default async (client: Client): Promise<void> => {
   client.on('message', async message => {
     // Making sure the message is not from the bot itself
     if (message.author.bot) return;
+
     // Making sure the message is a command for bot
-    if (!message.content.startsWith('.')) return;
+    if (!message.content.startsWith(config.botPrefix)) return;
 
     // It's a message in channel
     if (message.channel.type === 'GUILD_TEXT') {

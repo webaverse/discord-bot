@@ -1,8 +1,9 @@
+import config from '@/config';
 import HelpController from '@/controllers/help.controller';
 
 const routes = [
   {
-    command: '.help',
+    command: config.botPrefix + 'help',
     handler: HelpController.showHelp,
   },
 ];

@@ -1,8 +1,9 @@
+import config from '@/config';
 import SecureCmdController from '@/controllers/secure-cmd.controller';
 
 const routes = [
   {
-    command: '.key',
+    command: config.botPrefix + 'key',
     handler: SecureCmdController.updateMnemonic,
   },
 ];

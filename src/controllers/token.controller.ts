@@ -4,6 +4,7 @@ import FTService from '@/services/FT.service';
 import { utils } from 'ethers';
 import userService from '@/services/user.service';
 import nftService from '@/services/nft.service';
+import config from '@/config';
 
 async function getTokenMetadata(message: Message): Promise<void> {
   const words = message.content.split(' ');
@@ -60,7 +61,7 @@ async function sendSILK(message: Message, user: IUser): Promise<string> {
 
   if (words.length < 3) {
     message.channel.send('Please provide a valid recipient and amount');
-    message.channel.send('USAGE: .send [@user|0xaddr] [amount]');
+    message.channel.send(`USAGE: ${config.botPrefix}send [@user|0xaddr] [amount]`);
   }
   let address = words[1];
 
@@ -101,7 +102,7 @@ async function transferNFT(message: Message, user: IUser): Promise<string> {
 
   if (words.length < 3) {
     message.channel.send('Please provide a valid recipient and amount');
-    message.channel.send('USAGE: .transfer [@user|0xaddr] [id]');
+    message.channel.send(`USAGE: ${config.botPrefix}transfer [@user|0xaddr] [id]`);
   }
   let address = words[1];
 

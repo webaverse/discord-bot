@@ -1,13 +1,14 @@
 import { Message } from 'discord.js';
 import { IUser } from '@/interfaces/user.interface';
 import userService from '@/services/user.service';
+import config from '@/config';
 
 async function setName(message: Message, user: IUser): Promise<void> {
   const words = message.content.trim().split(' ');
 
   if (words.length !== 2) {
     message.channel.send('Please provide a name');
-    message.channel.send('USAGE: .name [newname]');
+    message.channel.send(`USAGE: ${config.botPrefix}name [newname]`);
     return;
   }
   const name = words[1];
@@ -20,7 +21,7 @@ async function setAvatar(message: Message, user: IUser): Promise<void> {
 
   if (words.length !== 2) {
     message.channel.send('Please provide a id');
-    message.channel.send('USAGE: .avatar [id]');
+    message.channel.send(`USAGE: ${config.botPrefix}avatar [id]`);
     return;
   }
   const tokenID = words[1];
@@ -37,7 +38,7 @@ async function setHomeSpace(message: Message, user: IUser): Promise<void> {
 
   if (words.length !== 2) {
     message.channel.send('Please provide a id');
-    message.channel.send('USAGE: .homespace [id]');
+    message.channel.send(`USAGE: ${config.botPrefix}homespace [id]`);
     return;
   }
   const tokenID = words[1];

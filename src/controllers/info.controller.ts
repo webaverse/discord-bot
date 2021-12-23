@@ -6,9 +6,10 @@ import userService from '@/services/user.service';
 import nftService from '@/services/nft.service';
 import { INFT } from '@/interfaces/NFT.interface';
 import crypto from 'crypto';
+import config from '@/config';
 
 async function showStatus(message: Message, user: IUser): Promise<void> {
-  if (message.content.toLowerCase() !== '.status') return;
+  if (message.content.trim() !== `${config.botPrefix}status`) return;
   const returnMessage = new MessageEmbed()
     .setColor('#000000')
     .setTitle(user.name)
@@ -21,14 +22,14 @@ async function showStatus(message: Message, user: IUser): Promise<void> {
     )
     .setImage(user.homeSpacePreview) // avatarPreview
     .setTimestamp()
-    .setFooter('.help for help', 'https://app.webaverse.com/assets/logo-flat.svg');
+    .setFooter(config.botPrefix + 'help for help', 'https://app.webaverse.com/assets/logo-flat.svg');
   const m = await message.channel.send({ embeds: [returnMessage] });
-  m.react('❌');
+  // m.react('❌');
 }
 
 async function showSILKBalance(message: Message): Promise<void> {
   const words = message.content.trim().split(' ');
-  if (words[0] !== '.balance') return;
+  if (words[0] !== config.botPrefix + 'balance') return;
   if (words.length === 1) words.push(`<@!${message.author.id}>`);
   let address = words[1];
   if (!utils.isAddress(words[1].trim()) && words[1].startsWith('<@!') && words[1].endsWith('>')) {
@@ -52,7 +53,7 @@ async function showSILKBalance(message: Message): Promise<void> {
 
 async function showNFTInventory(message: Message, user: IUser): Promise<void> {
   const words = message.content.trim().split(' ');
-  if (words[0] !== '.inventory') return;
+  if (words[0] !== config.botPrefix + 'inventory') return;
   if (words.length === 1) words.push(user.wallet.address);
   if (!utils.isAddress(words[1]) && !words[1].startsWith('<@!') && !words[1].endsWith('>')) return;
 
@@ -89,7 +90,7 @@ async function showNFTInventory(message: Message, user: IUser): Promise<void> {
 
 async function showWalletAddress(message: Message): Promise<void> {
   const words = message.content.trim().split(' ');
-  if (words[0] !== '.address') return;
+  if (words[0] !== config.botPrefix + 'address') return;
   if (words.length !== 2) words.push(`<@!${message.author.id}>`);
   if (!words[1].startsWith('<@!') || !words[1].endsWith('>')) {
     return;
@@ -103,7 +104,7 @@ async function showWalletAddress(message: Message): Promise<void> {
 }
 
 async function showWalletPrivateKey(message: Message, user: IUser): Promise<void> {
-  if (message.content.trim() !== '.key') return;
+  if (message.content.trim() !== config.botPrefix + 'key') return;
   try {
     await message.author.send('Address: `' + user.wallet.address + '`\nMnemonic: ||' + user.wallet.mnemonic + '||');
   } catch (error) {

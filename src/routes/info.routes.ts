@@ -1,28 +1,29 @@
 import InfoController from '@/controllers/info.controller';
+import config from '@/config';
 
 const routes = [
   {
-    command: '.status',
+    command: config.botPrefix + 'status',
     handler: InfoController.showStatus,
   },
   {
-    command: '.balance',
+    command: config.botPrefix + 'balance',
     handler: InfoController.showSILKBalance,
   },
   {
-    command: '.inventory',
+    command: config.botPrefix + 'inventory',
     handler: InfoController.showNFTInventory,
   },
   {
-    command: '.address',
+    command: config.botPrefix + 'address',
     handler: InfoController.showWalletAddress,
   },
   {
-    command: '.key',
+    command: config.botPrefix + 'key',
     handler: InfoController.showWalletPrivateKey,
   },
   {
-    command: '.login',
+    command: config.botPrefix + 'login',
     handler: InfoController.createLoginLink,
   },
 ];

@@ -1,8 +1,9 @@
+import config from '@/config';
 import MintingController from '@/controllers/minting.controller';
 
 const routes = [
   {
-    command: '.mint',
+    command: config.botPrefix + 'mint',
     handler: MintingController.mint,
   },
 ];

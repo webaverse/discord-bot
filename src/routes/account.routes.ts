@@ -1,16 +1,17 @@
+import config from '@/config';
 import AccountController from '@/controllers/account.controller';
 
 const routes = [
   {
-    command: '.name',
+    command: config.botPrefix + 'name',
     handler: AccountController.setName,
   },
   {
-    command: '.avatar',
+    command: config.botPrefix + 'avatar',
     handler: AccountController.setAvatar,
   },
   {
-    command: '.homespace',
+    command: config.botPrefix + 'homespace',
     handler: AccountController.setHomeSpace,
   },
 ];

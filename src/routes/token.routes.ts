@@ -1,20 +1,21 @@
+import config from '@/config';
 import TokenController from '@/controllers/token.controller';
 
 const routes = [
   {
-    command: '.get',
+    command: config.botPrefix + 'get',
     handler: TokenController.getTokenMetadata,
   },
   {
-    command: '.wget',
+    command: config.botPrefix + 'wget',
     handler: TokenController.getTokenMetadataAndDM,
   },
   {
-    command: '.send',
+    command: config.botPrefix + 'send',
     handler: TokenController.sendSILK,
   },
   {
-    command: '.transfer',
+    command: config.botPrefix + 'transfer',
     handler: TokenController.transferNFT,
   },
 ];
