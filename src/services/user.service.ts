@@ -157,7 +157,7 @@ async function getUser(id: string, consistentRead = false): Promise<IUser | null
 
   const userObj = await getUserDataInDB(id, consistentRead);
 
-  if (!user) {
+  if (!user || !userObj) {
     return null;
   }
 

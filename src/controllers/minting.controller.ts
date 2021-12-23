@@ -58,44 +58,50 @@ async function mint(message: Message, user: IUser): Promise<void> {
     return;
   }
 
-  // fetch the file from the URL and add it to IPFS
-  const response = await fetch(fileURL).then(res => res.arrayBuffer());
-  const imageBuffer = Buffer.from(response);
-  const fd = new FormData();
+  try {
+    // fetch the file from the URL and add it to IPFS
+    const response = await fetch(fileURL).then(res => res.arrayBuffer());
+    const imageBuffer = Buffer.from(response);
+    const fd = new FormData();
 
-  fd.append('binary_data', imageBuffer.toString('utf8'), {
-    filename: name,
-  });
+    fd.append('binary_data', imageBuffer.toString('utf8'), {
+      filename: name,
+    });
 
-  const ipfsFileHash: { name: string; hash: string } = await fetch(config.ipfsURL, {
-    method: 'POST',
-    body: fd,
-  }).then(res => res.json() as unknown as { name: string; hash: string });
+    const ipfsFileHash: { name: string; hash: string } = await fetch(config.ipfsURL, {
+      method: 'POST',
+      body: fd,
+    }).then(res => res.json() as unknown as { name: string; hash: string });
 
-  const metadata = {
-    name,
-    image: `https://preview.webaverse.com/${ipfsFileHash.hash}${ext}/preview.png`,
-    hash: ipfsFileHash.hash,
-    ext: ext.replace('.', ''),
-  };
+    const metadata = {
+      name,
+      image: `https://preview.webaverse.com/${ipfsFileHash[0].hash}${ext}/preview.png`,
+      hash: ipfsFileHash[0].hash,
+      ext: ext.replace('.', ''),
+    };
 
-  const metadataBuffer = Buffer.from(JSON.stringify(metadata));
+    const metadataBuffer = Buffer.from(JSON.stringify(metadata));
 
-  const metadataForm = new FormData();
+    const metadataForm = new FormData();
 
-  metadataForm.append('binary_data', metadataBuffer.toString('utf8'), {
-    filename: 'metadata.json',
-  });
+    metadataForm.append('binary_data', metadataBuffer.toString('utf8'), {
+      filename: 'metadata.json',
+    });
 
-  const ipfsMetadataHash: { name: string; hash: string } = await fetch(config.ipfsURL, {
-    method: 'POST',
-    body: metadataForm,
-  }).then(res => res.json() as unknown as { name: string; hash: string });
+    const ipfsMetadataHash: { name: string; hash: string } = await fetch(config.ipfsURL, {
+      method: 'POST',
+      body: metadataForm,
+    }).then(res => res.json() as unknown as { name: string; hash: string });
 
-  await FTService.approve(user.wallet.mnemonic, config.webaverse.address, mintFeeBN);
-  const txHash = await nftService.mint(user.wallet.mnemonic, ipfsMetadataHash.hash);
-  await message.channel.send('NFT minted successfully');
-  await message.channel.send(`Transaction: ${txHash}`);
+    await FTService.approve(user.wallet.mnemonic, config.webaverse.address, mintFeeBN);
+    const txHash = await nftService.mint(user.wallet.mnemonic, ipfsMetadataHash[0].hash);
+    await message.channel.send('NFT minted successfully');
+    await message.channel.send(`Transaction: ${txHash}`);
+  } catch (error) {
+    console.log(error);
+    await message.channel.send('An error occurred while minting the NFT');
+    throw new Error(error);
+  }
 }
 
 export default {
