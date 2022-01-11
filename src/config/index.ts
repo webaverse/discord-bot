@@ -67,11 +67,15 @@ export default {
     abi: erc20ABI.abi,
   },
   erc721: {
-    address: '0xCf5909f2eac709151fFA95459fB14C5E0Ecf0849',
+    address: '0xb6fb5ECe738b8A79AD8A28Bd8f5f7581E348852f',
     abi: erc721ABI.abi,
   },
   webaverse: {
-    address: '0x2253D5914D5Bccbe50652DB4Ed0A1A2B857a60c4',
+    address: '0x6C0Afe895D6e3141Ffc9302Fa4eF4cCD12c63Bdc',
+    abi: webaverseABI.abi,
+  },
+  accounts: {
+    address: '0xEE64CB0278f92a4A20cb8F2712027E89DE0eB85e',
     abi: webaverseABI.abi,
   },
 };
