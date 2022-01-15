@@ -22,12 +22,11 @@ async function getTokenMetadata(message: Message): Promise<void> {
 
   const embed = new MessageEmbed()
     .setColor('#000000')
-    .setTitle(`${nft.tokenID} - ${nft.name}`)
+    .setTitle(`${nft.id} - ${nft.name}`)
     .setDescription(`${nft.description || 'No description.'}`)
     .setThumbnail(nft.image)
-    .setURL(nft.external_url)
-    .addFields(nft.attributes.map(attribute => ({ name: attribute.trait_type, value: attribute.trait_type })));
-  message.channel.send({ embeds: [embed] });
+    .setURL(nft.external_url);
+  message.channel.send(embed);
 }
 
 async function getTokenMetadataAndDM(message: Message): Promise<void> {
@@ -38,16 +37,18 @@ async function getTokenMetadataAndDM(message: Message): Promise<void> {
     return;
   }
   const nft = await nftService.getNFT(tokenId);
-
+  if (!nft) {
+    message.reply('Token not found');
+    return;
+  }
   const embed = new MessageEmbed()
     .setColor('#000000')
-    .setTitle(`${nft.tokenID} - ${nft.name}`)
+    .setTitle(`${nft.id} - ${nft.name}`)
     .setDescription(`${nft.description || 'No description.'}`)
     .setThumbnail(nft.image)
-    .setURL(nft.external_url)
-    .addFields(nft.attributes.map(attribute => ({ name: attribute.trait_type, value: attribute.trait_type })));
+    .setURL(nft.external_url);
   try {
-    await message.author.send({ embeds: [embed] });
+    await message.author.send(embed);
   } catch (error) {
     if (error.message === 'Cannot send messages to this user') {
       message.reply('Could not DM you. Please enable DMs from this server.');
@@ -141,9 +142,41 @@ async function transferNFT(message: Message, user: IUser): Promise<string> {
   await message.channel.send(`Transaction: ${txHash}`);
 }
 
+async function getNFTMetadata(message: Message): Promise<void> {
+  const words = message.content.split(' ');
+  const tokenId = words[1];
+  const key = words[2];
+  if (!tokenId || !key) {
+    message.reply('Please provide token ID and key');
+    return;
+  }
+  const metadataValue = await nftService.getMetadata(tokenId, key);
+  await message.reply(`${key}: ${metadataValue}`);
+}
+
+async function setNFTMetadata(message: Message, user: IUser): Promise<void> {
+  const words = message.content.split(' ');
+  const tokenId = words[1];
+  const key = words[2];
+  const value = words[3];
+  if (!tokenId || !key || !value) {
+    message.reply('Please provide token ID, key and value');
+    return;
+  }
+
+  const owner = await nftService.getNFTOwner(tokenId);
+  if (user.wallet.address.toLowerCase() !== owner.toLocaleLowerCase()) {
+    message.reply('You do not own this NFT');
+    return;
+  }
+  await nftService.setMetadata(user.wallet.mnemonic, tokenId, key, value);
+}
+
 export default {
   getTokenMetadata,
   getTokenMetadataAndDM,
   sendSILK,
   transferNFT,
+  getNFTMetadata,
+  setNFTMetadata,
 };

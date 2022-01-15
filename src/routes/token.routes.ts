@@ -3,7 +3,7 @@ import TokenController from '@/controllers/token.controller';
 
 const routes = [
   {
-    command: config.botPrefix + 'get',
+    command: config.botPrefix + 'view',
     handler: TokenController.getTokenMetadata,
   },
   {
@@ -17,6 +17,14 @@ const routes = [
   {
     command: config.botPrefix + 'transfer',
     handler: TokenController.transferNFT,
+  },
+  {
+    command: config.botPrefix + 'get',
+    handler: TokenController.getNFTMetadata,
+  },
+  {
+    command: config.botPrefix + 'set',
+    handler: TokenController.setNFTMetadata,
   },
 ];
 

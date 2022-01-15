@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import erc20ABI from '@/abi/WebaverseERC20.json';
 import erc721ABI from '@/abi/WebaverseERC721.json';
 import webaverseABI from '@/abi/Webaverse.json';
+import accountsABI from '@/abi/Accounts.json';
 
 // Set the NODE_ENV to 'development' by default
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
@@ -51,12 +52,19 @@ export default {
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   region: process.env.AWS_REGION || 'us-west-1',
+
   /*
    *
    * Prefix for bot commands
    */
 
   botPrefix: process.env.COMMAND_PREFIX,
+
+  /*
+   *
+   * Number of recent messages to be stored in the message store
+   */
+  messageStoreSize: 150,
 
   /*
    *
@@ -76,6 +84,6 @@ export default {
   },
   accounts: {
     address: '0xEE64CB0278f92a4A20cb8F2712027E89DE0eB85e',
-    abi: webaverseABI.abi,
+    abi: accountsABI.abi,
   },
 };

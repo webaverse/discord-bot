@@ -14,6 +14,14 @@ const routes = [
     command: config.botPrefix + 'homespace',
     handler: AccountController.setHomeSpace,
   },
+  {
+    command: config.botPrefix + 'loadout',
+    handler: AccountController.setLoadout,
+  },
+  {
+    command: config.botPrefix + 'monetizationpointer',
+    handler: AccountController.setMonetizationPointer,
+  },
 ];
 
 export default routes;

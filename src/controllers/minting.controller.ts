@@ -73,28 +73,8 @@ async function mint(message: Message, user: IUser): Promise<void> {
       body: fd,
     }).then(res => res.json() as unknown as { name: string; hash: string });
 
-    const metadata = {
-      name,
-      image: `https://preview.webaverse.com/${ipfsFileHash[0].hash}${ext}/preview.png`,
-      hash: ipfsFileHash[0].hash,
-      ext: ext.replace('.', ''),
-    };
-
-    const metadataBuffer = Buffer.from(JSON.stringify(metadata));
-
-    const metadataForm = new FormData();
-
-    metadataForm.append('binary_data', metadataBuffer.toString('utf8'), {
-      filename: 'metadata.json',
-    });
-
-    const ipfsMetadataHash: { name: string; hash: string } = await fetch(config.ipfsURL, {
-      method: 'POST',
-      body: metadataForm,
-    }).then(res => res.json() as unknown as { name: string; hash: string });
-
     await FTService.approve(user.wallet.mnemonic, config.webaverse.address, mintFeeBN);
-    const txHash = await nftService.mint(user.wallet.mnemonic, ipfsMetadataHash[0].hash);
+    const txHash = await nftService.mint(user.wallet.mnemonic, ipfsFileHash[0].hash, name, ext.replace('.', ''), '');
     await message.channel.send('NFT minted successfully');
     await message.channel.send(`Transaction: ${txHash}`);
   } catch (error) {

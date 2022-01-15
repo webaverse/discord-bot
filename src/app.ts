@@ -1,12 +1,10 @@
 import 'reflect-metadata'; // We need this in order to use @Decorators
 
 import config from './config';
-import { Client, Intents } from 'discord.js';
+import { Client } from 'discord.js';
 
 async function startServer() {
-  const client = new Client({
-    intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES],
-  });
+  const client = new Client();
 
   /**
    * A little hack here

@@ -11,18 +11,22 @@ const helpFields: IHelpCommand[] = [
       ['balance', ['[@user|0xaddr]?'], 'show SILK balance'],
       ['inventory', ['[@user|0xaddr]?'], 'show NFTs'],
       ['address', ['[@user]?'], 'print address'],
-      ['key', ['[@user]?'], 'private key (DM)'],
+      ['key', [], 'private key (DM)'],
       ['login', [], 'login link (DM)'],
+      ['play', [], 'play link (DM)'],
+      ['realm', ['[num]'], 'play link to realm [1-5] (DM)'],
     ],
   },
   {
     name: 'Tokens',
     shortname: 'tokens',
     commands: [
-      ['get', ['[id]'], 'get NFT [id]'],
+      ['view', ['[id]'], 'get NFT [id]'],
       ['wget', ['[id]'], 'get NFT [id] in DM'],
       ['send', ['[@user|0xaddr]', '[amount]'], 'send [amount] of SILK to user/address'],
       ['transfer', ['[@user|0xaddr]', '[id]'], 'send NFT'],
+      ['get', ['[id]', '[key]'], 'get metadata for NFT'],
+      ['set', ['[id]', '[key]', '[value]'], 'set metadata for NFT'],
     ],
   },
   {
@@ -32,6 +36,8 @@ const helpFields: IHelpCommand[] = [
       ['name', ['[newname]'], 'set name to [name]'],
       ['avatar', ['[id]'], 'set avatar'],
       ['homespace', ['[id]'], 'set NFT as home space'],
+      ['loadout', ['[num]', '[id]'], 'set loadout NFT [1-8] to [id]'],
+      ['monetizationpointer', ['[mp]'], 'set monetization pointer'],
     ],
   },
   {
@@ -77,7 +83,7 @@ async function showHelp(message: Message): Promise<void> {
           }),
         ),
     );
-    await message.channel.send({ embeds });
+    await message.channel.send(embeds[0]);
   } else {
     const words = message.content.trim().split(' ');
     if (words.length !== 2) {
@@ -107,7 +113,7 @@ async function showHelp(message: Message): Promise<void> {
             '```',
         ),
     );
-    await message.channel.send({ embeds });
+    await message.channel.send(embeds[0]);
   }
 }
 

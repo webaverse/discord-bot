@@ -26,6 +26,14 @@ const routes = [
     command: config.botPrefix + 'login',
     handler: InfoController.createLoginLink,
   },
+  {
+    command: config.botPrefix + 'play',
+    handler: InfoController.createPlayLink,
+  },
+  {
+    command: config.botPrefix + 'realm',
+    handler: InfoController.createRealmLink,
+  },
 ];
 
 export default routes;
