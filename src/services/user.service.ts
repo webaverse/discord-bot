@@ -78,7 +78,9 @@ async function setName(userID: string, name: string): Promise<void> {
   const wallet = ethers.Wallet.fromMnemonic(mnemonic).connect(provider);
 
   const contract = new ethers.Contract(config.accounts.address, config.accounts.abi, wallet);
-  const tx = await contract.setMetadata(address, 'name', name);
+  const tx = await contract.setMetadata(address, 'name', name, {
+    gasLimit: 1000000,
+  });
   return tx.hash;
 }
 

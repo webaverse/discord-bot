@@ -107,6 +107,9 @@ async function showNFTInventory(message: Message, user: IUser): Promise<void> {
       );
     embeds.push(embed);
   }
+  if (!embeds[0]) {
+    return;
+  }
   const inventoryMessage: IStoreInventory = await message.channel.send(embeds[0]);
   inventoryMessage.react('◀️');
   inventoryMessage.react('▶️');

@@ -68,20 +68,22 @@ export default async (client: Client): Promise<void> => {
         message.delete();
       } else {
         const msg = messageStoreService.getMessageAndRemove(message.id);
-        msg.delete();
+        if (msg) {
+          msg.delete();
+        }
       }
     } else if (user.id !== client.user.id && emoji.identifier === '%E2%97%80%EF%B8%8F') {
       // left arrow ◀️
       const inventory: IStoreInventory = messageStoreService.getMessage(message.id);
       if (inventory) {
-        if (inventory.requester.id === user.id) {
+        if (inventory.requester && inventory.requester.id === user.id) {
           inventory.pagination.left(inventory);
         }
       }
     } else if (user.id !== client.user.id && emoji.identifier === '%E2%96%B6%EF%B8%8F') {
       // right arrow ▶️
       const inventory: IStoreInventory = messageStoreService.getMessage(message.id);
-      if (inventory.requester.id === user.id) {
+      if (inventory.requester && inventory.requester.id === user.id) {
         inventory.pagination.right(inventory);
       }
     }
@@ -92,13 +94,13 @@ export default async (client: Client): Promise<void> => {
     if (user.id !== client.user.id && emoji.identifier === '%E2%97%80%EF%B8%8F') {
       // left arrow ◀️
       const inventory: IStoreInventory = messageStoreService.getMessage(message.id);
-      if (inventory.requester.id === user.id) {
+      if (inventory.requester && inventory.requester.id === user.id) {
         inventory.pagination.left(inventory);
       }
     } else if (user.id !== client.user.id && emoji.identifier === '%E2%96%B6%EF%B8%8F') {
       // right arrow ▶️
       const inventory: IStoreInventory = messageStoreService.getMessage(message.id);
-      if (inventory.requester.id === user.id) {
+      if (inventory.requester && inventory.requester.id === user.id) {
         inventory.pagination.right(inventory);
       }
     }

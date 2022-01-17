@@ -15,7 +15,9 @@ async function transfer(mnemonic: string, toAddress: string, amount: BigNumber):
   const wallet = ethers.Wallet.fromMnemonic(mnemonic).connect(provider);
 
   const contract = new ethers.Contract(config.erc20.address, config.erc20.abi, wallet);
-  const tx = await contract.transfer(toAddress, amount);
+  const tx = await contract.transfer(toAddress, amount, {
+    gasLimit: 1000000,
+  });
   return tx.hash;
 }
 
@@ -24,7 +26,9 @@ async function approve(mnemonic: string, address: string, amount: BigNumber): Pr
   const wallet = ethers.Wallet.fromMnemonic(mnemonic).connect(provider);
 
   const contract = new ethers.Contract(config.erc20.address, config.erc20.abi, wallet);
-  const tx = await contract.approve(address, amount);
+  const tx = await contract.approve(address, amount, {
+    gasLimit: 1000000,
+  });
   return tx.hash;
 }
 

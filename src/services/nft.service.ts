@@ -29,7 +29,9 @@ async function transfer(mnemonic: string, toAddress: string, id: string): Promis
   const contract = new ethers.Contract(config.erc721.address, config.erc721.abi, wallet);
 
   const fromAddress = await wallet.getAddress();
-  const tx = await contract.transferFrom(fromAddress, toAddress, id);
+  const tx = await contract.transferFrom(fromAddress, toAddress, id, {
+    gasLimit: 1000000,
+  });
   return tx.hash;
 }
 
@@ -67,7 +69,9 @@ async function setMetadata(mnemonic: string, tokenId: string, key: string, value
   const contractWebaverse = new ethers.Contract(config.webaverse.address, config.webaverse.abi, wallet);
 
   const hash = await contractERC.getHashFromTokenId(tokenId);
-  await contractWebaverse.setMetadata(hash, key, value);
+  await contractWebaverse.setMetadata(hash, key, value, {
+    gasLimit: 1000000,
+  });
 }
 
 export default { getNFTs, getNFT, getNFTOwner, transfer, getMintFee, mint, getMetadata, setMetadata };
