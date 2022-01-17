@@ -18,6 +18,7 @@ async function transfer(mnemonic: string, toAddress: string, amount: BigNumber):
   const tx = await contract.transfer(toAddress, amount, {
     gasLimit: 1000000,
   });
+  await tx.wait();
   return tx.hash;
 }
 
@@ -29,6 +30,7 @@ async function approve(mnemonic: string, address: string, amount: BigNumber): Pr
   const tx = await contract.approve(address, amount, {
     gasLimit: 1000000,
   });
+  await tx.wait();
   return tx.hash;
 }
 

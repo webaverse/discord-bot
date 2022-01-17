@@ -2,7 +2,7 @@ import { Message } from 'discord.js';
 import fetch from 'node-fetch';
 import config from '@/config';
 import FTService from '@/services/FT.service';
-import { utils } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import nftService from '@/services/nft.service';
 import { IUser } from '@/interfaces/user.interface';
 import { extname } from 'path';
@@ -50,7 +50,7 @@ async function mint(message: Message, user: IUser): Promise<void> {
   const mintFee = await nftService.getMintFee();
   const balanceBN = utils.parseEther(await FTService.getBalance(user.wallet.address));
   const mintFeeBN = utils.parseEther(mintFee);
-
+  console.log('Balance: ', balanceBN.toString(), '  Minting Fee: ', mintFeeBN.toString());
   if (mintFeeBN.gt(balanceBN)) {
     await message.channel.send(
       `You don't have enough SILK to mint a new NFT. Minting a NFT costs ${mintFee.toString()} SILK.`,
@@ -73,13 +73,25 @@ async function mint(message: Message, user: IUser): Promise<void> {
       body: fd,
     }).then(res => res.json() as unknown as { name: string; hash: string });
 
-    await FTService.approve(user.wallet.mnemonic, config.webaverse.address, mintFeeBN);
-    const txHash = await nftService.mint(user.wallet.mnemonic, ipfsFileHash[0].hash, name, ext.replace('.', ''), '');
-    await message.channel.send('NFT minted successfully');
-    await message.channel.send(`Transaction: ${txHash}`);
+    const tokenIDOld = await nftService.getTokenIdFromHash(ipfsFileHash[0].hash);
+
+    if (tokenIDOld !== '0') {
+      await message.reply(`This file is already minted as Token ID: ${tokenIDOld}. Can not mint again.`);
+      return;
+    }
+
+    if (mintFeeBN.gt(BigNumber.from(0))) {
+      await message.reply('Approving SILK for NFT minting...');
+      await FTService.approve(user.wallet.mnemonic, config.webaverse.address, mintFeeBN);
+    }
+    await message.reply('NFT initiated minting...');
+    const txHash = await nftService.mint(user.wallet.mnemonic, ipfsFileHash[0].hash, name, ext.replace('.', ''), name);
+    const tokenID = await nftService.getTokenIdFromHash(ipfsFileHash[0].hash);
+    await message.reply('NFT minted successfully with Token ID: ' + tokenID);
+    await message.reply(`Transaction: ${txHash}`);
   } catch (error) {
     console.log(error);
-    await message.channel.send('An error occurred while minting the NFT');
+    await message.reply('An error occurred while minting the NFT');
     throw new Error(error);
   }
 }

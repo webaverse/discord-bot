@@ -32,6 +32,7 @@ async function transfer(mnemonic: string, toAddress: string, id: string): Promis
   const tx = await contract.transferFrom(fromAddress, toAddress, id, {
     gasLimit: 1000000,
   });
+  await tx.wait();
   return tx.hash;
 }
 
@@ -50,6 +51,7 @@ async function mint(mnemonic: string, hash: string, name: string, ext: string, d
 
   const userAddress = await wallet.getAddress();
   const tx = await contract.mint(userAddress, hash, name, ext, description, { gasLimit: 3000000 });
+  await tx.wait();
   return tx.hash;
 }
 
@@ -69,9 +71,27 @@ async function setMetadata(mnemonic: string, tokenId: string, key: string, value
   const contractWebaverse = new ethers.Contract(config.webaverse.address, config.webaverse.abi, wallet);
 
   const hash = await contractERC.getHashFromTokenId(tokenId);
-  await contractWebaverse.setMetadata(hash, key, value, {
+  const tx = await contractWebaverse.setMetadata(hash, key, value, {
     gasLimit: 1000000,
   });
+  await tx.wait();
 }
 
-export default { getNFTs, getNFT, getNFTOwner, transfer, getMintFee, mint, getMetadata, setMetadata };
+async function getTokenIdFromHash(hash: string): Promise<string> {
+  const provider = new ethers.providers.JsonRpcProvider(config.sidechainURL);
+  const contract = new ethers.Contract(config.erc721.address, config.erc721.abi, provider);
+  const tokenId = await contract.getTokenIdFromHash(hash);
+  return `${tokenId}`;
+}
+
+export default {
+  getNFTs,
+  getNFT,
+  getNFTOwner,
+  transfer,
+  getMintFee,
+  mint,
+  getMetadata,
+  setMetadata,
+  getTokenIdFromHash,
+};
