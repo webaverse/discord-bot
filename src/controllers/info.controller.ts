@@ -62,9 +62,9 @@ async function showNFTInventory(message: Message, user: IUser): Promise<void> {
   if (!utils.isAddress(words[1]) && !words[1].startsWith('<@!') && !words[1].endsWith('>')) return;
 
   let userObj = null;
-
   if (words[1].startsWith('<@!') && words[1].endsWith('>')) {
-    userObj = await userService.getUser(words[1].toLowerCase().replace('<@!', '').replace('>', ''));
+    const userid = words[1].toLowerCase().replace('<@!', '').replace('>', '');
+    userObj = await userService.getUser(userid);
     if (!userObj) {
       await message.channel.send('User not found.');
       return;
@@ -76,18 +76,23 @@ async function showNFTInventory(message: Message, user: IUser): Promise<void> {
     return;
   }
 
-  const nfts: INFT[] = await nftService.getNFTs(words[1]);
+  const nfts: INFT[] = await nftService.getNFTs(userObj.address);
   if (nfts.length === 0) {
     await message.channel.send('No NFTs found.');
     return;
   }
+
   const totalPages = Math.ceil(nfts.length / 10);
   const embeds = [];
+
+  console.log(`Total Pages: ${totalPages} \n Total NFTs: ${nfts.length}`);
+
   for (let pageIndex = 1; pageIndex <= totalPages; pageIndex++) {
+    console.log(`Doing: ${pageIndex} / ${totalPages}`);
     const embed = new MessageEmbed()
       .setColor('#000')
-      .setTitle(`${words[1]}'s inventory`)
-      .setAuthor(words[1], userObj.avatarPreview, `https://webaverse.com/creators/${userObj.address}`)
+      .setTitle(`${userObj.name}'s inventory`)
+      .setAuthor(userObj.name, userObj.avatarPreview, `https://webaverse.com/creators/${userObj.address}`)
       .addFields(
         nfts
           .slice(10 * (pageIndex - 1), 10 * pageIndex)
@@ -107,9 +112,7 @@ async function showNFTInventory(message: Message, user: IUser): Promise<void> {
       );
     embeds.push(embed);
   }
-  if (!embeds[0]) {
-    return;
-  }
+
   const inventoryMessage: IStoreInventory = await message.channel.send(embeds[0]);
   inventoryMessage.react('◀️');
   inventoryMessage.react('▶️');
