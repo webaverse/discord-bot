@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import erc20ABI from '@/abi/WebaverseERC20.json';
-import erc721ABI from '@/abi/WebaverseERC721.json';
+import erc1155ABI from '@/abi/WebaverseERC1155.json';
 import webaverseABI from '@/abi/Webaverse.json';
 import accountsABI from '@/abi/Accounts.json';
 
@@ -74,12 +74,12 @@ export default {
     address: '0x5D31B1BAc74A55A2D475d069E698Eb814EcD7eAe',
     abi: erc20ABI.abi,
   },
-  erc721: {
-    address: '0x1EB475A4510536cb26d3AF9e545436ae18ef1Ad6',
-    abi: erc721ABI.abi,
+  erc1155: {
+    address: '0x06bd28FBc5181dc24D2cD00d64FC12291626c2a2',
+    abi: erc1155ABI.abi,
   },
   webaverse: {
-    address: '0xb829eEdB1086d3A3057126e94712A6925AB55c4c',
+    address: '0x79df968029112B6c0bbc3Ed130f937D97ABA5126',
     abi: webaverseABI.abi,
   },
   accounts: {

@@ -24,9 +24,8 @@ const helpFields: IHelpCommand[] = [
       ['view', ['[id]'], 'get NFT [id]'],
       ['wget', ['[id]'], 'get NFT [id] in DM'],
       ['send', ['[@user|0xaddr]', '[amount]'], 'send [amount] of SILK to user/address'],
-      ['transfer', ['[@user|0xaddr]', '[id]'], 'send NFT'],
-      ['get', ['[id]', '[key]'], 'get metadata for NFT'],
-      ['set', ['[id]', '[key]', '[value]'], 'set metadata for NFT'],
+      ['transfer', ['[@user|0xaddr]', '[id]', '[amount]?'], 'send NFT'],
+      // ['set', ['[id]', '[key]', '[value]'], 'set attributes for NFT if you own it'],
     ],
   },
   {
@@ -44,8 +43,8 @@ const helpFields: IHelpCommand[] = [
     name: 'Minting',
     shortname: 'minting',
     commands: [
-      ['mint', ['[name]'], 'mint NFT from file attachment and name it [name]'],
-      ['mint', ['[name]', '[url]'], 'mint NFTs from [url] and name it [name]'],
+      ['mint', ['[balance]?'], 'mint NFT with balance [balance] (default 1) from file attachment and name it [name].'],
+      ['mint', ['[url]', '[balance]?'], 'mint NFT with balance [balance] (default 1) from [url] and name it [name]'],
     ],
   },
   // Commenting these out for now, as they are implemented but not receiving events for DMs

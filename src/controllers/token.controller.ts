@@ -22,10 +22,13 @@ async function getTokenMetadata(message: Message): Promise<void> {
 
   const embed = new MessageEmbed()
     .setColor('#000000')
-    .setTitle(`${nft.id} - ${nft.name}`)
-    .setDescription(`${nft.description || 'No description.'}`)
-    .setThumbnail(nft.image)
-    .setURL(nft.external_url);
+    .setTitle(`Token ID: ${nft.token_id} | Name: ${nft.metadata.name || 'null'}`)
+    .setDescription(`${nft.metadata.description || 'No description.'}`)
+    .setThumbnail(nft.metadata.image)
+    .setURL(nft.metadata.external_url)
+    .addFields(
+      nft.metadata.attributes.map(attribute => ({ name: attribute.trait_type, value: attribute.value, inline: true })),
+    );
   message.channel.send(embed);
 }
 
@@ -43,10 +46,13 @@ async function getTokenMetadataAndDM(message: Message): Promise<void> {
   }
   const embed = new MessageEmbed()
     .setColor('#000000')
-    .setTitle(`${nft.id} - ${nft.name}`)
-    .setDescription(`${nft.description || 'No description.'}`)
-    .setThumbnail(nft.image)
-    .setURL(nft.external_url);
+    .setTitle(`Token ID: ${nft.token_id} | Name: ${nft.metadata.name || 'null'}`)
+    .setDescription(`${nft.metadata.description || 'No description.'}`)
+    .setThumbnail(nft.metadata.image)
+    .setURL(nft.metadata.external_url)
+    .addFields(
+      nft.metadata.attributes.map(attribute => ({ name: attribute.trait_type, value: attribute.value, inline: true })),
+    );
   try {
     await message.author.send(embed);
   } catch (error) {
@@ -102,10 +108,11 @@ async function transferNFT(message: Message, user: IUser): Promise<string> {
   const words = message.content.split(' ');
 
   if (words.length < 3) {
-    message.channel.send('Please provide a valid recipient and amount');
-    message.channel.send(`USAGE: ${config.botPrefix}transfer [@user|0xaddr] [id]`);
+    await message.reply('Please provide a valid recipient and amount');
+    return;
   }
   let address = words[1];
+  let balance = words[2];
 
   if (words[1].startsWith('<@!') && words[1].endsWith('>')) {
     const cmdUser = await userService.getUser(words[1].toLowerCase().replace('<@!', '').replace('>', ''));
@@ -126,50 +133,60 @@ async function transferNFT(message: Message, user: IUser): Promise<string> {
     message.reply('Please provide a valid token id');
     return;
   }
-  let nftOwner = '';
+  if (!balance || isNaN(Number(balance))) {
+    balance = '1';
+    return;
+  }
+
+  let ownedBalance = '';
   try {
-    nftOwner = await nftService.getNFTOwner(tokenID);
+    ownedBalance = await nftService.getNFTBalance(user.address, tokenID);
   } catch (error) {
-    message.reply('Token non-existent');
+    message.reply(`You do not own ${balance} NFTs of this token id`);
     return;
   }
-  if (nftOwner !== user.wallet.address) {
-    message.reply('You do not own this NFT');
+  console.log('ownedBalance: ', ownedBalance);
+  if (ownedBalance === '0') {
+    message.reply(`You do not own ${balance} NFTs of this token id`);
     return;
   }
-  const txHash = await nftService.transfer(user.wallet.mnemonic, address, tokenID);
+  const txHash = await nftService.transfer(user.wallet.mnemonic, address, tokenID, '1');
   await message.channel.send(`Sent token #${tokenID} to ${address}`);
   await message.channel.send(`Transaction: ${txHash}`);
 }
 
 async function getNFTMetadata(message: Message): Promise<void> {
-  const words = message.content.split(' ');
-  const tokenId = words[1];
-  const key = words[2];
-  if (!tokenId || !key) {
-    message.reply('Please provide token ID and key');
-    return;
-  }
-  const metadataValue = await nftService.getMetadata(tokenId, key);
-  await message.reply(`${key}: ${metadataValue}`);
+  // const words = message.content.split(' ');
+  // const tokenId = words[1];
+  // const key = words[2];
+  // if (!tokenId || !key) {
+  //   message.reply('Please provide token ID and key');
+  //   return;
+  // }
+  // const metadataValue = await nftService.getMetadata(tokenId, key);
+  // await message.reply(`${key}: ${metadataValue}`);
 }
 
 async function setNFTMetadata(message: Message, user: IUser): Promise<void> {
-  const words = message.content.split(' ');
-  const tokenId = words[1];
-  const key = words[2];
-  const value = words[3];
-  if (!tokenId || !key || !value) {
-    message.reply('Please provide token ID, key and value');
-    return;
-  }
+  // const words = message.content.split(' ');
+  // const tokenId = words[1];
+  // const key = words[2];
+  // const value = words[3];
+  // if (!tokenId || !key || !value) {
+  //   message.reply('Please provide token ID, key and value');
+  //   return;
+  // }
 
-  const owner = await nftService.getNFTOwner(tokenId);
-  if (user.wallet.address.toLowerCase() !== owner.toLocaleLowerCase()) {
-    message.reply('You do not own this NFT');
-    return;
-  }
-  await nftService.setMetadata(user.wallet.mnemonic, tokenId, key, value);
+  // let ownedBalance = '';
+  // try {
+  //   ownedBalance = await nftService.getNFTBalance(user.address, tokenId);
+  // } catch (error) {
+  //   message.reply(`You do not completely own this NFT`);
+  //   return;
+  // }
+  // console.log('ownedBalance: ', ownedBalance);
+
+  // await nftService.setMetadata(user.wallet.mnemonic, tokenId, key, value);
 }
 
 export default {

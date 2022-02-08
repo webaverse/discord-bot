@@ -98,8 +98,10 @@ async function showNFTInventory(message: Message, user: IUser): Promise<void> {
           .slice(10 * (pageIndex - 1), 10 * pageIndex)
           .map(entry => {
             return {
-              name: `${entry.id}) ${entry.name}.${entry.ext}`,
-              value: ` ${entry.hash} (${entry.balance}/${entry.totalSupply})`,
+              name: `Token ID: ${entry.token_id} | Name: ${entry.metadata.name || 'null'}`,
+              value: ` ${entry.metadata.asset || entry.metadata.animation_url || entry.metadata.image} | Balance: ${
+                entry.balance
+              }`,
               // inline: true,
             };
           })

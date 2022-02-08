@@ -7,6 +7,7 @@ import { IStoreInventory } from '@/interfaces/message.interace';
 
 async function routeMessage(message: Message): Promise<void> {
   const command = message.content.split(' ')[0];
+  console.log(command);
   for (const route of routes.messageRoutes) {
     if (route.command === command) {
       const user = await userService.getUser(message.author.id);

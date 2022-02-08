@@ -5,7 +5,7 @@
   "main": "src/app.ts",
   "scripts": {
     "build": "tsc && npx tsc-alias",
-    "start": "nodemon",
+    "dev": "nodemon",
     "inspect": "nodemon --inspect src/app.ts",
     "test": "jest",
     "lint": "npm run lint:js ",
@@ -26,6 +26,8 @@
   "license": "MIT",
   "dependencies": {
     "@psibean/discord.js-pagination": "^4.0.2",
+    "@types/adm-zip": "^0.4.34",
+    "adm-zip": "^0.5.9",
     "aws-sdk": "^2.1046.0",
     "bip39": "^3.0.4",
     "discord.js": "^12.3.1",
@@ -43,6 +45,7 @@
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.6",
     "reflect-metadata": "^0.1.13",
+    "request": "^2.88.2",
     "typedi": "^0.8.0",
     "winston": "^3.3.3"
   },

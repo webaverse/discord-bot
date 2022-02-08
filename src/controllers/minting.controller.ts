@@ -8,14 +8,59 @@ import { IUser } from '@/interfaces/user.interface';
 import { extname } from 'path';
 import url from 'url';
 import FormData from 'form-data';
+import AdmZip from 'adm-zip';
+import request from 'request';
 
 async function mint(message: Message, user: IUser): Promise<void> {
   const words = message.content.trim().split(' ');
 
-  let fileURL, name;
+  let fileURL;
   let ext = '';
+  let balance = 1;
 
-  if (words.length === 2) {
+  if (words.length < 2 && words.length > 3) {
+    message.reply('Invalid command');
+    return;
+  }
+
+  if (words.length === 3) {
+    if (!words[1].match(/^http(s)?:\/\//)) {
+      message.reply('Invalid URL');
+      return;
+    }
+
+    fileURL = words[1];
+    balance = Number.parseInt(words[2]);
+    ext = extname(url.parse(fileURL).pathname);
+    if (isNaN(balance)) {
+      message.reply('Invalid balance value');
+      return;
+    }
+  } else if (words.length === 2) {
+    if (words[1].match(/^http(s)?:\/\//)) {
+      fileURL = words[1];
+      ext = extname(url.parse(fileURL).pathname);
+    } else {
+      if (message.attachments.size === 0) {
+        await message.channel.send('Please provide a file attachment or a URL');
+        return;
+      }
+      if (message.attachments.size > 1) {
+        await message.channel.send('Please provide only one file attachment');
+        return;
+      }
+
+      const attachment = message.attachments.first();
+
+      fileURL = attachment.url;
+      ext = extname(url.parse(attachment.url).pathname);
+      balance = Number.parseInt(words[1]);
+      if (isNaN(balance)) {
+        message.reply('Invalid balance value');
+        return;
+      }
+    }
+  } else if (words.length === 1) {
     if (message.attachments.size === 0) {
       await message.channel.send('Please provide a file attachment or a URL');
       return;
@@ -28,22 +73,15 @@ async function mint(message: Message, user: IUser): Promise<void> {
 
     const attachment = message.attachments.first();
 
-    name = words[1];
     fileURL = attachment.url;
     ext = extname(url.parse(attachment.url).pathname);
-  } else if (words.length === 3) {
-    const fileLink = words[2];
-    if (!fileLink.match(/^http(s)?:\/\//)) {
-      await message.channel.send('Please provide a valid URL');
-      return;
-    }
-    fileURL = fileLink;
-    name = words[1];
-    ext = extname(url.parse(fileLink).pathname);
   } else {
-    message.reply(
-      `Invalid command. Please use \`${config.botPrefix}mint [name] or ${config.botPrefix}mint [name] [url]\``,
-    );
+    message.reply(`Invalid command.`);
+    return;
+  }
+
+  if (!ext) {
+    await message.channel.send('Unrecognized file extension');
     return;
   }
 
@@ -59,35 +97,48 @@ async function mint(message: Message, user: IUser): Promise<void> {
   }
 
   try {
-    // fetch the file from the URL and add it to IPFS
-    const response = await fetch(fileURL).then(res => res.arrayBuffer());
-    const imageBuffer = Buffer.from(response);
-    const fd = new FormData();
+    let ipfsFileHash = '';
 
-    fd.append('binary_data', imageBuffer.toString('utf8'), {
-      filename: name,
-    });
+    if (ext === '.zip') {
+      const fd = new FormData();
+      const files = await download(fileURL).then(unzip);
+      for (const file of files) {
+        fd.append(file.path, file.content, {
+          filename: file.path.split('/').pop(),
+        });
+      }
+      ipfsFileHash = (
+        await fetch(config.ipfsURL + '/upload-folder', {
+          method: 'POST',
+          body: fd,
+        }).then(res => res.json() as unknown as { cid: string })
+      ).cid;
+      ext = '.metaversefile';
+    } else {
+      const imageBuffer = (await download(fileURL)) as Buffer;
 
-    const ipfsFileHash: { name: string; hash: string } = await fetch(config.ipfsURL, {
-      method: 'POST',
-      body: fd,
-    }).then(res => res.json() as unknown as { name: string; hash: string });
+      const fd = new FormData();
 
-    const tokenIDOld = await nftService.getTokenIdFromHash(ipfsFileHash[0].hash);
+      fd.append('binary_data', imageBuffer, {
+        filename: `file${ext}`,
+      });
 
-    if (tokenIDOld !== '0') {
-      await message.reply(`This file is already minted as Token ID: ${tokenIDOld}. Can not mint again.`);
-      return;
+      ipfsFileHash = (
+        await fetch(config.ipfsURL, {
+          method: 'POST',
+          body: fd,
+        }).then(res => res.json() as unknown as Array<{ name: string; hash: string }>)
+      )[0].hash;
     }
+    await message.reply(`IPFS: ${ipfsFileHash}`);
 
     if (mintFeeBN.gt(BigNumber.from(0))) {
       await message.reply('Approving SILK for NFT minting...');
       await FTService.approve(user.wallet.mnemonic, config.webaverse.address, mintFeeBN);
     }
     await message.reply('NFT initiated minting...');
-    const txHash = await nftService.mint(user.wallet.mnemonic, ipfsFileHash[0].hash, name, ext.replace('.', ''), name);
-    const tokenID = await nftService.getTokenIdFromHash(ipfsFileHash[0].hash);
-    await message.reply('NFT minted successfully with Token ID: ' + tokenID);
+    const txHash = await nftService.mint(user.wallet.mnemonic, ipfsFileHash, ext.replace('.', ''), balance);
+    await message.reply('NFT minted successfully');
     await message.reply(`Transaction: ${txHash}`);
   } catch (error) {
     console.log(error);
@@ -95,6 +146,39 @@ async function mint(message: Message, user: IUser): Promise<void> {
     throw new Error(error);
   }
 }
+
+const download = function (url) {
+  return new Promise(function (resolve, reject) {
+    request(
+      {
+        url: url,
+        method: 'GET',
+        encoding: null,
+      },
+      function (err, response, body) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(body);
+      },
+    );
+  });
+};
+
+const unzip = function (buffer): Promise<Array<{ path: string; content: Buffer }>> {
+  return new Promise(function (resolve) {
+    const zip = new AdmZip(buffer);
+    const zipEntries = zip.getEntries(); // an array of ZipEntry records
+    const files = [];
+    for (const file of zipEntries) {
+      files.push({
+        path: file.entryName,
+        content: file.getData(),
+      });
+    }
+    resolve(files);
+  });
+};
 
 export default {
   mint,
