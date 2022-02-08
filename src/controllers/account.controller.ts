@@ -39,9 +39,11 @@ async function setAvatar(message: Message, user: IUser): Promise<void> {
       message.reply('Please provide a valid token id');
       return;
     }
-    name = nft.name;
-    ext = nft.ext;
-    avatarPreview = `https://preview.webaverse.com/${nft.hash}${ext ? '.' + ext : ''}/preview.png`;
+
+    const file = nft.metadata.asset || nft.metadata.animation_url || nft.metadata.image || '';
+    name = nft.metadata.name || `${nft.asset_contract.name}#${tokenID}`;
+    ext = file.split('.').pop();
+    avatarPreview = `https://preview.webaverse.com/${file}/preview.png`;
   }
 
   if (tokenID.startsWith('http')) {
@@ -66,7 +68,7 @@ async function setHomeSpace(message: Message, user: IUser): Promise<void> {
   }
   const tokenID = words[1];
   let name = '';
-  let avatarPreview = '';
+  let homespacePreview = '';
   let ext = '';
 
   if (tokenID && !isNaN(Number(tokenID))) {
@@ -75,9 +77,10 @@ async function setHomeSpace(message: Message, user: IUser): Promise<void> {
       message.reply('Please provide a valid token id');
       return;
     }
-    name = nft.name;
-    ext = nft.ext;
-    avatarPreview = `https://preview.webaverse.com/${nft.hash}${ext ? '.' + ext : ''}/preview.png`;
+    const file = nft.metadata.asset || nft.metadata.animation_url || nft.metadata.image || '';
+    name = nft.metadata.name || `${nft.asset_contract.name}#${tokenID}`;
+    ext = file.split('.').pop();
+    homespacePreview = `https://preview.webaverse.com/${file}/preview.png`;
   }
 
   if (tokenID.startsWith('http')) {
@@ -85,10 +88,10 @@ async function setHomeSpace(message: Message, user: IUser): Promise<void> {
     const path = url.pathname;
     ext = path.split('.').pop();
     name = path.split('/').pop();
-    avatarPreview = `https://preview.webaverse.com/[${tokenID}]/preview.png`;
+    homespacePreview = `https://preview.webaverse.com/[${tokenID}]/preview.png`;
   }
 
-  await userService.setHomeSpace(user.id, tokenID, name, avatarPreview, ext);
+  await userService.setHomeSpace(user.id, tokenID, name, homespacePreview, ext);
   await message.reply(`Homespace ID set to ${tokenID}`);
 }
 
@@ -119,14 +122,15 @@ async function setLoadout(message: Message, user: IUser): Promise<void> {
   } catch (error) {
     loadout = [null, null, null, null, null, null, null, null];
   }
+  const file = nft.metadata.asset || nft.metadata.animation_url || nft.metadata.image || '';
   loadout[Number(slot) - 1] = {
-    id: nft.id,
-    name: nft.name,
-    ext: nft.ext,
-    itemPreview: `https://preview.webaverse.com/${nft.hash}${nft.ext ? '.' + nft.ext : ''}/preview.png`,
+    id: nft.token_id,
+    name: nft.metadata.name || `${nft.asset_contract.name}#${tokenID}`,
+    ext: file.split('.').pop(),
+    itemPreview: `https://preview.webaverse.com/${file}/preview.png`,
   };
   await userService.setLoadout(user.id, JSON.stringify(loadout));
-  await message.reply(`Loadout ${slot} set to ${nft.name}`);
+  await message.reply(`Loadout ${slot} set to ${nft.token_id}`);
 }
 
 async function setMonetizationPointer(message: Message, user: IUser): Promise<void> {
